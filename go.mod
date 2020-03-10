@@ -3,7 +3,7 @@ module github.com/google-cloud-tools/kafka-minion
 require (
 	github.com/DataDog/zstd v1.4.4 // indirect
 	github.com/OneOfOne/xxhash v1.2.5 // indirect
-	github.com/Shopify/sarama v1.24.1
+	github.com/Shopify/sarama v1.23.0 // DO NOT UPDATE TO 1.24. SEE https://github.com/Shopify/sarama/issues/1526
 	github.com/dgryski/go-sip13 v0.0.0-20190329191031-25c5027a8c7b // indirect
 	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/gogo/protobuf v1.2.1 // indirect
