@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"regexp"
 )
 
 type consumerStatus struct {
@@ -26,6 +27,8 @@ type OffsetConsumer struct {
 
 	// StorageChannel is used to persist processed messages in memory so that they can be exposed with prometheus
 	storageChannel chan<- *StorageRequest
+
+    consumerGroupWhiteListRegExp *regexp.Regexp
 
 	logger           *log.Entry
 	client           sarama.Client
@@ -54,13 +57,18 @@ func NewOffsetConsumer(opts *options.Options, storageChannel chan<- *StorageRequ
 	}
 	connectionLogger.Info("Successfully connected to kafka cluster")
 
+    logger.WithFields(log.Fields{
+        "consumer_group_whitelist_regexp": opts.ConsumerGroupWhiteListRegExp,
+    }).Info("Using consumer group whitelisting");
+
 	return &OffsetConsumer{
-		wg:               sync.WaitGroup{},
-		storageChannel:   storageChannel,
-		logger:           logger,
-		client:           client,
-		offsetsTopicName: opts.ConsumerOffsetsTopicName,
-		options:          opts,
+		wg:                             sync.WaitGroup{},
+		storageChannel:                 storageChannel,
+		consumerGroupWhiteListRegExp:   regexp.MustCompile(opts.ConsumerGroupWhiteListRegExp),
+		logger:                         logger,
+		client:                         client,
+		offsetsTopicName:               opts.ConsumerOffsetsTopicName,
+		options:                        opts,
 	}
 }
 
@@ -262,6 +270,13 @@ func (module *OffsetConsumer) processOffsetCommit(key *bytes.Buffer, value *byte
 		return
 	}
 
+    if !module.shouldReportMetricsForConsumerGroup(offset.Group) {
+		logger.WithFields(log.Fields{
+			"group": offset.Group,
+		}).Debug("consumer group is not white listed to report metrics")
+		return
+    }
+
 	offsetExpiry := time.Now().Add(-module.options.OffsetRetention)
 	if offset.Timestamp.Before(offsetExpiry) {
 		// Offset message is older than 1 week ago (or whatever the offset retention is set to)
@@ -278,6 +293,14 @@ func (module *OffsetConsumer) isTopicAllowed(topicName string) bool {
 	}
 
 	return true
+}
+
+func (module *OffsetConsumer) shouldReportMetricsForConsumerGroup(consumerGroupName string) bool {
+	if module.consumerGroupWhiteListRegExp.MatchString(consumerGroupName) {
+	    return true
+	}
+
+	return false
 }
 
 // processGroupMetadata decodes all group metadata messages and sends them to the storage module

@@ -19,6 +19,8 @@ type Options struct {
 	// Exporter settings
 	// IgnoreSystemTopics - Don't expose metrics about system topics (any topic names which are "__" or "_confluent" prefixed)
 	IgnoreSystemTopics bool `envconfig:"EXPORTER_IGNORE_SYSTEM_TOPICS" default:"true"`
+	// ConsumerGroupWhiteListRegExp - Expose only metrics from consumer groups that match given regular expression
+	ConsumerGroupWhiteListRegExp string `envconfig:"CONSUMER_GROUP_WHITE_LIST_REGEXP" default:".*"`
 
 	// Kafka configurations
 	// KafkaBrokers - Addresses of all Kafka Brokers delimited by comma (e. g. "kafka-1:9092, kafka-2:9092")
