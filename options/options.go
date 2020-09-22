@@ -51,6 +51,7 @@ type Options struct {
 	SASLGSSAPIUsername           string `envconfig:"KAFKA_SASL_GSSAPI_USERNAME"`
 	SASLGSSAPIPassword           string `envconfig:"KAFKA_SASL_GSSAPI_PASSWORD"`
 	SASLGSSAPIRealm              string `envconfig:"KAFKA_SASL_GSSAPI_REALM"`
+	SASLGSSAPIDisablePAFXFAST    bool   `envconfig:"KAFKA_SASL_GSSAPI_DISABLE_PAFX_FAST" default:"false"`
 
 	// TLS Settings
 	// TLSEnabled - Whether or not to use TLS encryption

@@ -85,6 +85,7 @@ func saramaClientConfig(opts *options.Options) *sarama.Config {
 			clientConfig.Net.SASL.GSSAPI.Username = opts.SASLGSSAPIUsername
 			clientConfig.Net.SASL.GSSAPI.Password = opts.SASLGSSAPIPassword
 			clientConfig.Net.SASL.GSSAPI.Realm = opts.SASLGSSAPIRealm
+			clientConfig.Net.SASL.GSSAPI.DisablePAFXFAST = opts.SASLGSSAPIDisablePAFXFAST
 		}
 	}
 	err = clientConfig.Validate()
